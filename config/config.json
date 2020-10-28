@@ -1,0 +1,112 @@
+{
+    "orderers":[{
+            "id":"orderer.orderer.com",
+            "url": "grpcs://localhost:7050",
+            "tlsca":"/media/vaccum/4A1A4ACF1A4AB8291/study/hyperledgerFabric/fabric-network/crypto-config/ordererOrganizations/orderer.com/orderers/orderer.orderer.com/tls/ca.crt",
+            "ordererMSP":"OrdererMSP",
+            "tlsEnabled":"true"
+        },{
+            "id":"orderer2.orderer.com",
+            "url": "grpcs://localhost:8050",
+            "tlsca":"/media/vaccum/4A1A4ACF1A4AB8291/study/hyperledgerFabric/fabric-network/crypto-config/ordererOrganizations/orderer.com/orderers/orderer2.orderer.com/tls/ca.crt",
+            "ordererMSP":"OrdererMSP",
+            "tlsEnabled":"true"
+        },
+        {
+            "id":"orderer3.orderer.com",
+            "url": "grpcs://localhost:10050",
+            "tlsca":"/media/vaccum/4A1A4ACF1A4AB8291/study/hyperledgerFabric/fabric-network/crypto-config/ordererOrganizations/orderer.com/orderers/orderer3.orderer.com/tls/ca.crt",
+            "ordererMSP":"OrdererMSP",
+            "tlsEnabled":"true"
+        }
+    
+
+],
+    "peers":[{
+            "id":"peer0.org1.com",
+            "url":"grpcs://localhost:7051",
+            "tlsca":"/media/vaccum/4A1A4ACF1A4AB8291/study/hyperledgerFabric/fabric-network/crypto-config/peerOrganizations/org1.com/peers/peer0.org1.com/tls/ca.crt",
+            "peerMSP":"Org1MSP",
+            "tlsEnabled":"true",
+            "peerType":"endorser",
+            "orgName":"org1",
+            "ca":{
+                "id":"ca.org1.com",
+                "url":"http://localhost:7054",
+                "tlsca":"/media/vaccum/4A1A4ACF1A4AB8291/study/hyperledgerFabric/fabric-network/crypto-config/peerOrganizations/org1.com/ca/ca.org1.com-cert.pem",
+                "name":"ca.org1.com",
+                "enrollmentId":"admin",
+                "enrollmentSecret":"adminpw",
+ 		"orgName":"org1"
+
+            }
+        },
+        {
+            "id":"peer1.org1.com",
+            "url":"grpcs://localhost:8051",
+            "tlsca":"/media/vaccum/4A1A4ACF1A4AB8291/study/hyperledgerFabric/fabric-network/crypto-config/peerOrganizations/org1.com/peers/peer1.org1.com/tls/ca.crt",
+            "peerMSP":"Org1MSP",
+            "tlsEnabled":"true",
+            "peerType":"endorser",
+ 	    "orgName":"org1",
+            "ca":{
+                "id":"ca.org1.com",
+                "url":"http://localhost:7054",
+                "tlsca":"/media/vaccum/4A1A4ACF1A4AB8291/study/hyperledgerFabric/fabric-network/crypto-config/peerOrganizations/org1.com/ca/ca.org1.com-cert.pem",
+                "name":"ca.org1.com",
+                "enrollmentId":"admin",
+                "enrollmentSecret":"adminpw",
+                "orgName":"org1"
+            }
+        },
+{
+            "id":"peer0.org2.com",
+            "url":"grpcs://localhost:9051",
+            "tlsca":"/media/vaccum/4A1A4ACF1A4AB8291/study/hyperledgerFabric/fabric-network/crypto-config/peerOrganizations/org2.com/peers/peer0.org2.com/tls/ca.crt",
+            "peerMSP":"Org2MSP",
+            "tlsEnabled":"true",
+            "peerType":"endorser",
+             "orgName":"org2",
+            "ca":{
+                "id":"ca.org2.com",
+                "url":"http://localhost:8054",
+                "tlsca":"/media/vaccum/4A1A4ACF1A4AB8291/study/hyperledgerFabric/fabric-network/crypto-config/peerOrganizations/org2.com/ca/ca.org2.com-cert.pem",
+                "name":"ca.org2.com",
+                "enrollmentId":"admin",
+                "enrollmentSecret":"adminpw",
+ 		"orgName":"org2"
+
+            }
+        },{
+            "id":"peer1.org2.com",
+            "url":"grpcs://localhost:10051",
+            "tlsca":"/media/vaccum/4A1A4ACF1A4AB8291/study/hyperledgerFabric/fabric-network/crypto-config/peerOrganizations/org2.com/peers/peer1.org2.com/tls/ca.crt",
+            "peerMSP":"Org2MSP",
+            "tlsEnabled":"true",
+            "peerType":"endorser",
+            "orgName":"org2",
+            "ca":{
+                "id":"ca.org2.com",
+                "url":"http://localhost:8054",
+                "tlsca":"/media/vaccum/4A1A4ACF1A4AB8291/study/hyperledgerFabric/fabric-network/crypto-config/peerOrganizations/org2.com/ca/ca.org2.com-cert.pem",
+                "name":"ca.org2.com",
+                "enrollmentId":"admin",
+                "enrollmentSecret":"adminpw",
+		 "orgName":"org2"
+
+            }
+        }
+
+    ],
+    "channels":[{
+
+            "channelName":"testchannel",
+            "orgList":["orderer.orderer.com","orderer1.orderer.com","orderer2.orderer.com","peer0.org1.com","peer1.org1.com","peer0.org2.com","peer1.org2.com"]
+
+        
+    }]
+
+
+
+
+}
