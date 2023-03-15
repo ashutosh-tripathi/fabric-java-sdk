@@ -39,7 +39,7 @@ import com.fabric.user.UserImpl;
 
 public class UserController {
 	
-	public UserImpl getUser(String username,String orgname,CAOrganisation ca) throws IOException
+	public UserImpl getUser(String username,String orgname,CAOrganisation ca,PeerOrganisations peer) throws IOException
 	{
 		ArrayList<UserImpl> userList = new ArrayList<UserImpl>();
 		 FileInputStream fis=null;
@@ -58,9 +58,13 @@ public class UserController {
           
        
                 try {
+                	 if(buffer.available()>0)
+                	 {
                 	 ois = new ObjectInputStream (buffer);
+                	
                 	userList=(ArrayList<UserImpl>)ois.readObject();
-                	System.out.println(userList.toString());
+                	 }
+//                	System.out.println(userList.toString());
            
                 } catch (EOFException e) {
                     
@@ -76,7 +80,7 @@ public class UserController {
            
 //           File file = new File("config/ca."+orgname+".com-cert.pem");
 	       	String pemContent=FileUtils.readFileToString(file);
-     	System.out.println("pemString"+pemContent);
+//     	System.out.println("pemString"+pemContent);
 		  
            Properties properties = new Properties();
            properties.put("pemBytes", pemContent.getBytes());
@@ -102,12 +106,12 @@ public class UserController {
                    oos=new ObjectOutputStream(fos);
                		
                		Enrollment adminEnrollment = caClient.enroll(ca.getEnrollmentId(), ca.getEnrollmentSecret());
-               		UserImpl admin = new UserImpl("admin",orgname, orgname+"MSP", adminEnrollment);
+               		UserImpl admin = new UserImpl("admin",orgname, peer.getPeerMSP(), adminEnrollment);
                		System.out.println("admin"+admin.toString());
                		RegistrationRequest rr = new RegistrationRequest(username, orgname);
                		String userSecret = caClient.register(rr, admin);
                		Enrollment userEnrollment = caClient.enroll(username, userSecret);
-               		UserImpl nappUser = new UserImpl(username, orgname,orgname+"MSP", userEnrollment);
+               		UserImpl nappUser = new UserImpl(username, orgname,peer.getPeerMSP(), userEnrollment);
                		userList.add(admin);
                		System.out.println("in admin not enrolled"+admin.toString());
                		userList.add(nappUser);
@@ -123,7 +127,7 @@ public class UserController {
         		   RegistrationRequest rr = new RegistrationRequest(username, orgname);
               		String userSecret = caClient.register(rr, adminUser);
               		Enrollment userEnrollment = caClient.enroll(username, userSecret);
-              		UserImpl nappUser = new UserImpl(username, orgname,orgname+"MSP", userEnrollment);
+              		UserImpl nappUser = new UserImpl(username, orgname,peer.getPeerMSP(), userEnrollment);
               		userList.add(nappUser);  
               		System.out.println("in admin enrolled"+nappUser.toString());
               		oos.writeObject(userList);

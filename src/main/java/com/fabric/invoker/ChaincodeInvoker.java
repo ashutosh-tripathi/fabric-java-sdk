@@ -3,8 +3,10 @@ package com.fabric.invoker;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet ;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture ;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
@@ -36,9 +38,12 @@ public class ChaincodeInvoker {
 			CryptoSuite cryptoSuite = CryptoSuite.Factory.getCryptoSuite();
 			HFClient hfClient = HFClient.createNewInstance();
 			hfClient.setCryptoSuite(cryptoSuite);
+//			user.setMspId("Org1MSP");
 			hfClient.setUserContext(user);
+			File file=null;
+			String pemContent=null;
 			
-			ArrayList<PeerOrganisations> peers=(ArrayList<PeerOrganisations>) fabric.getPeers().stream().filter(peer->peer.getOrgName().equalsIgnoreCase(user.getAccount())).collect(Collectors.toList());
+		/*	ArrayList<PeerOrganisations> peers=(ArrayList<PeerOrganisations>) fabric.getPeers().stream().filter(peer->peer.getOrgName().equalsIgnoreCase(user.getAccount())).collect(Collectors.toList());
 			
 			 File file=new File(peers.get(0).getTlsca());
 	       	String pemContent=FileUtils.readFileToString(file);
@@ -47,7 +52,10 @@ public class ChaincodeInvoker {
 			 peer_properties.put("pemBytes", pemContent.getBytes());
 			 peer_properties.setProperty("sslProvider", "openSSL");
 			 peer_properties.setProperty("negotiationType", "TLS");
-			 Peer peer = hfClient.newPeer(peers.get(0).getId(), peers.get(0).getUrl(), peer_properties);
+//			 peer_properties.setProperty("PEER_ORGANIZATION_MSPID_PROPERTY", "Org1MSP");
+			 peer_properties.setProperty("ORGANIZATION_MSPID", "Org1MSP");
+			 Peer peer = hfClient.newPeer(peers.get(0).getId(), peers.get(0).getUrl(), peer_properties);*/
+			 
 			 
 			 
 			 BlockListener blockListener = new BlockListener() {         
@@ -55,10 +63,10 @@ public class ChaincodeInvoker {
 			        public void received(BlockEvent arg0) {
 			            Block block = arg0.getBlock();
 
-			            System.out.println("BLock All FIelds :" + block.getAllFields());
-			            System.out.println("BLock Number :" + arg0.getBlockNumber());               
+//			            System.out.println("BLock All FIelds :" + block.getAllFields());
+//			            System.out.println("BLock Number :" + arg0.getBlockNumber());               
 
-			            System.out.println("In block Listener..");
+//			            System.out.println("In block Listener.."+k);
 			        }
 			    };
 
@@ -73,8 +81,21 @@ public class ChaincodeInvoker {
 			    Orderer orderer = hfClient.newOrderer(fabric.getOrderers().get(0).getId(), fabric.getOrderers().get(0).getUrl(), orderer_properties);
 			    
 			    Channel channel = hfClient.newChannel(orgChannel.getChannelName());
-
+			    
+			    ArrayList<PeerOrganisations> peers=(ArrayList<PeerOrganisations>) fabric.getPeers().stream().filter(peer->peer.getOrgName().equalsIgnoreCase(user.getAccount())).collect(Collectors.toList());
+				
+			    for(PeerOrganisations peerorg: fabric.getPeers())
+			    {
+				  file=new File(peerorg.getTlsca());
+		       	 pemContent=FileUtils.readFileToString(file);
+//	     	    System.out.println("pemString"+pemContent);
+				Properties peer_properties = new Properties();
+				 peer_properties.put("pemBytes", pemContent.getBytes());
+				 peer_properties.setProperty("sslProvider", "openSSL");
+				 peer_properties.setProperty("negotiationType", "TLS");
+				 Peer peer = hfClient.newPeer(peerorg.getId(), peerorg.getUrl(), peer_properties);
 			    channel.addPeer(peer);
+			    }
 			    channel.registerBlockListener(blockListener);
 			    channel.addOrderer(orderer);
 			    channel.initialize();
@@ -93,28 +114,52 @@ public class ChaincodeInvoker {
 			    request.setArgs(arguments);
 			    request.setProposalWaitTime(3000);
 			    Collection<ProposalResponse> responses = channel.sendTransactionProposal(request);
+			    
+			    
+		
+			    
+			    
+			    
 			    ArrayList<ProposalResponse> success=new ArrayList<ProposalResponse>();
 			    ArrayList<ProposalResponse> failed=new ArrayList<ProposalResponse>();
-			    Set<ProposalResponse> consistencySet = null;
+//			    Set<ProposalResponse> consistencySet = new HashSet<ProposalResponse>();
 			    for (ProposalResponse res : responses) {
 			      // Process response from transaction proposal
 			    	if(res.getStatus().equals(Status.SUCCESS))
 			    	{
 			    		success.add(res);
-			    		consistencySet.add(res);
+//			    		consistencySet.add(res);
 			    	}
 			    	else
 			    		failed.add(res);
 			    }
 			    
-			    if(failed.size()==0 && consistencySet.size()==1)
+			    if(failed.size()==0)
 			    {
-			    	return success.get(0).getProposalResponse().getPayload().toStringUtf8();
+			    	 Collection<Orderer> orderers = new ArrayList<Orderer>();
+				        orderers.add(orderer);
+				        CompletableFuture<BlockEvent.TransactionEvent> future = channel.sendTransaction(success, orderers);
+				        BlockEvent.TransactionEvent transactionEvent = future.get();
+
+				     // Check the result of the transaction
+				     if (transactionEvent.isValid()) {
+				    	 String transactionId = transactionEvent.getTransactionID();
+				    	 String blockId =String.valueOf(transactionEvent.getBlockEvent().getBlock().getHeader().getNumber())
+				    			 ;
+				    	 System.out.println("successfully created transaction with id"+transactionId +"with block id"+blockId) ;
+				    	return transactionId;
+				    	 
+				     } else {
+				         // Transaction failed
+				    	 return "Failed";
+				     }
 			    }
 			    else
 			    {
 			    	return failed.get(0).getMessage();
 			    }
+			    
+			 
 			    
 			
 			
